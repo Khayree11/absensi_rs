@@ -17,28 +17,21 @@ class Presensi extends BaseController
         $model = new PresensiModel();
 
         // 1. Tangkap data dari AJAX
-        $user_id   = $session->get('user_id') ?? 1; // Fallback ke ID 1 jika belum login
+        $user_id   = $session->get('user_id') ?? 1; // Pastikan user sudah login
         $jenis     = $this->request->getPost('jenis');
         $lat_user  = $this->request->getPost('lat');
         $long_user = $this->request->getPost('long');
         $image     = $this->request->getPost('image');
 
-        // 1. Koordinat RSU PKU Muhammadiyah Jatinom (Target)
+        // 2. Koordinat RSU PKU Muhammadiyah Jatinom (Target)
         $officeLat  = -7.639856176326184; 
         $officeLong = 110.60134710359047; 
         
-        // 2. Tentukan Jarak Maksimal (Radius dalam Meter)
-        // Disarankan 100 meter untuk area rumah sakit yang luas
+        // 3. Tentukan Jarak Maksimal (Radius dalam Meter)
         $maxRange = 100; 
 
-        // 3. Tangkap data dari AJAX
-        $userLat  = $this->request->getPost('lat');
-        $userLong = $this->request->getPost('long');
-        $jenis    = $this->request->getPost('jenis');
-        $image    = $this->request->getPost('image');
-
         // 4. Hitung Jarak Real-time
-        $jarak = $this->calculateDistance($userLat, $userLong, $officeLat, $officeLong);
+        $jarak = $this->calculateDistance($lat_user, $long_user, $officeLat, $officeLong);
 
         if ($jarak > $maxRange) {
             return $this->response->setJSON([
@@ -47,20 +40,20 @@ class Presensi extends BaseController
             ]);
         }
 
-        // 3. Proses Foto (Base64 ke File)
+        // 5. Proses Foto (Base64 ke Binary)
+        // Hapus header data URI agar bersih
         $image = str_replace('data:image/jpeg;base64,', '', $image);
         $image = str_replace(' ', '+', $image);
-        $data  = base64_decode($image);
         
-        $fileName = 'absen_' . $user_id . '_' . time() . '.jpg';
-        $filePath = FCPATH . 'uploads/presensi/' . $fileName;
-        file_put_contents($filePath, $data);
+        // Decode menjadi binary data
+        $imgBinary = base64_decode($image);
 
-        // 4. Simpan ke Database
+        // 6. Simpan ke Database
+        // Pastikan kolom 'foto' di database sudah bertipe BLOB/MEDIUMBLOB
         $model->save([
             'user_id'   => $user_id,
             'jenis'     => $jenis,
-            'foto'      => $fileName,
+            'foto'      => $imgBinary, // Simpan data biner gambar
             'koordinat' => $lat_user . ',' . $long_user
         ]);
 

@@ -12,7 +12,7 @@ class CreatePresensiTable extends Migration
         'id'          => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true],
         'user_id'     => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true],
         'jenis'       => ['type' => 'ENUM', 'constraint' => ['masuk', 'pulang']],
-        'foto'        => ['type' => 'VARCHAR', 'constraint' => 255],
+        'foto'        => ['type' => 'MEDIUMBLOB'],
         'koordinat'   => ['type' => 'VARCHAR', 'constraint' => 100],
         'created_at'  => ['type' => 'DATETIME', 'null' => true],
         'updated_at'  => ['type' => 'DATETIME', 'null' => true], // TAMBAHKAN INI

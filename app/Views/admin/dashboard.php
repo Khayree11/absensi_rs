@@ -159,18 +159,28 @@
                     </thead>
                     <tbody>
                         <?php foreach($list_presensi as $p) : ?>
+                        
+                        <?php 
+                            // --- BAGIAN INI DIPERBAIKI ---
+                            // 1. Convert Binary (BLOB) ke Base64 String
+                            $fotoBase64 = base64_encode($p['foto']); 
+                            
+                            // 2. Buat Format Data URI untuk src gambar
+                            $srcGambar = 'data:image/jpeg;base64,' . $fotoBase64;
+                        ?>
+
                         <tr>
                             <td class="small fw-bold text-muted">
                                 <?= date('d M Y', strtotime($p['created_at'])) ?><br>
                                 <span class="text-dark"><?= date('H:i', strtotime($p['created_at'])) ?> WIB</span>
                             </td>
                             <td>
-                                <div class="fw-bold"><?= $p['nama'] ?></div>
-                                <div class="text-muted small">ID: #<?= $p['user_id'] ?></div>
+                                <div class="fw-bold"><?= esc($p['nama']) ?></div>
+                                <div class="text-muted small">ID: #<?= esc($p['user_id']) ?></div>
                             </td>
                             <td>
-                                <span class="d-block small fw-bold text-primary"><?= $p['unit'] ?></span>
-                                <span class="d-block small text-muted"><?= $p['jabatan'] ?></span>
+                                <span class="d-block small fw-bold text-primary"><?= esc($p['unit']) ?></span>
+                                <span class="d-block small text-muted"><?= esc($p['jabatan']) ?></span>
                             </td>
                             <td>
                                 <span class="badge rounded-pill <?= $p['jenis'] == 'masuk' ? 'badge-masuk' : 'badge-pulang' ?> px-3 py-2">
@@ -180,9 +190,10 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group shadow-sm" role="group">
-                                    <button class="btn btn-sm btn-view-photo" onclick="showFoto('<?= base_url('uploads/presensi/'.$p['foto']) ?>')">
+                                    <button class="btn btn-sm btn-view-photo" onclick="showFoto('<?= $srcGambar ?>')">
                                         <i class="bi bi-person-bounding-box"></i> Foto
                                     </button>
+                                    
                                     <a href="https://www.google.com/maps?q=<?= $p['koordinat'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary btn-maps">
                                         <i class="bi bi-geo-alt"></i> Maps
                                     </a>
@@ -205,7 +216,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center p-4">
-                <img src="" id="imgModal" class="img-fluid rounded-4 shadow-sm border border-4 border-white">
+                <img src="" id="imgModal" class="img-fluid rounded-4 shadow-sm border border-4 border-white" style="max-height: 500px;">
             </div>
         </div>
     </div>
@@ -234,8 +245,9 @@
         });
     });
 
-    function showFoto(url) {
-        document.getElementById('imgModal').src = url;
+    function showFoto(base64String) {
+        // Fungsi JS tetap sama, karena kita mengirim string Base64 yang valid ke sini
+        document.getElementById('imgModal').src = base64String;
         new bootstrap.Modal(document.getElementById('fotoModal')).show();
     }
 </script>
