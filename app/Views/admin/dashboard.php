@@ -3,52 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Absensi RS</title>
+    <title>Dashboard Admin - RSU PKU Jatinom</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-</head>
-<body class="bg-light">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --light-bg: #f0f4f8;
+        }
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        body { 
+            background: linear-gradient(135deg, var(--light-bg) 0%, #dbeafe 100%);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background-color: #ffffff !important;
+            box-shadow: 0 2px 15px rgba(0, 86, 179, 0.1);
+            padding: 15px 0;
+        }
+
+        .hospital-logo-nav {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .logout-btn {
+            color: #e53e3e;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            color: #c53030;
+        }
+
+        /* Card & Table Styling */
+        .admin-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 86, 179, 0.08);
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #edf2f7;
+            padding: 20px 25px;
+        }
+
+        .table thead th {
+            background-color: #f8fafc;
+            color: var(--primary-blue);
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Button & Badge Styling */
+        .btn-view-photo {
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .btn-view-photo:hover {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+        }
+
+        .btn-maps {
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-masuk { background-color: #28a745; }
+        .badge-pulang { background-color: #dc3545; }
+
+        /* Modal Styling */
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+        }
+
+        /* DataTables Customization */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--primary-blue) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top mb-4">
     <div class="container">
-        <a class="navbar-brand" href="#">Admin Absensi RS</a>
+        <a class="navbar-brand" href="#">
+            <img src="<?= base_url('image/full.png') ?>" alt="Logo RS" class="hospital-logo-nav">
+        </a>
+        <div class="d-flex align-items-center">
+            <span class="me-3 d-none d-md-inline fw-bold text-muted small">Panel Administrator</span>
+            <a href="<?= base_url('logout') ?>" class="logout-btn small">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
     </div>
 </nav>
 
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-white">
-            <h5 class="mb-0">Rekap Presensi Karyawan</h5>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="fw-bold mb-1">Rekap Presensi Digital</h3>
+            <p class="text-muted small">Monitor kehadiran karyawan secara real-time</p>
         </div>
-        <div class="card-body">
+    </div>
+
+    <div class="card admin-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold" style="color: var(--primary-blue);">Daftar Kehadiran Hari Ini</h5>
+            <span class="badge bg-light text-primary border border-primary-subtle">
+                Total Data: <?= count($list_presensi) ?>
+            </span>
+        </div>
+        <div class="card-body p-4">
             <div class="table-responsive">
-                <table id="tabelAbsen" class="table table-striped table-hover">
+                <table id="tabelAbsen" class="table table-hover align-middle">
                     <thead>
                         <tr>
                             <th>Waktu</th>
-                            <th>Nama</th>
-                            <th>Unit/Jabatan</th>
-                            <th>Jenis</th>
-                            <th>Foto</th>
-                            <th>Lokasi</th>
+                            <th>Nama Karyawan</th>
+                            <th>Unit / Jabatan</th>
+                            <th>Status</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach($list_presensi as $p) : ?>
                         <tr>
-                            <td><?= date('d/m/Y H:i', strtotime($p['created_at'])) ?></td>
-                            <td><strong><?= $p['nama'] ?></strong></td>
-                            <td><small><?= $p['unit'] ?> (<?= $p['jabatan'] ?>)</small></td>
+                            <td class="small fw-bold text-muted">
+                                <?= date('d M Y', strtotime($p['created_at'])) ?><br>
+                                <span class="text-dark"><?= date('H:i', strtotime($p['created_at'])) ?> WIB</span>
+                            </td>
                             <td>
-                                <span class="badge <?= $p['jenis'] == 'masuk' ? 'bg-success' : 'bg-danger' ?>">
+                                <div class="fw-bold"><?= $p['nama'] ?></div>
+                                <div class="text-muted small">ID: #<?= $p['user_id'] ?></div>
+                            </td>
+                            <td>
+                                <span class="d-block small fw-bold text-primary"><?= $p['unit'] ?></span>
+                                <span class="d-block small text-muted"><?= $p['jabatan'] ?></span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill <?= $p['jenis'] == 'masuk' ? 'badge-masuk' : 'badge-pulang' ?> px-3 py-2">
+                                    <i class="bi <?= $p['jenis'] == 'masuk' ? 'bi-box-arrow-in-right' : 'bi-box-arrow-right' ?>"></i> 
                                     <?= ucfirst($p['jenis']) ?>
                                 </span>
                             </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" onclick="showFoto('<?= base_url('uploads/presensi/'.$p['foto']) ?>')">Lihat Foto</button>
-                            </td>
-                            <td>
-                                <a href="https://www.google.com/maps?q=<?= $p['koordinat'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary">Buka Maps</a>
+                            <td class="text-center">
+                                <div class="btn-group shadow-sm" role="group">
+                                    <button class="btn btn-sm btn-view-photo" onclick="showFoto('<?= base_url('uploads/presensi/'.$p['foto']) ?>')">
+                                        <i class="bi bi-person-bounding-box"></i> Foto
+                                    </button>
+                                    <a href="https://www.google.com/maps?q=<?= $p['koordinat'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary btn-maps">
+                                        <i class="bi bi-geo-alt"></i> Maps
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -60,14 +198,14 @@
 </div>
 
 <div class="modal fade" id="fotoModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
             <div class="modal-header">
-                <h5 class="modal-title">Bukti Foto Absensi</h5>
+                <h6 class="modal-title fw-bold"><i class="bi bi-camera"></i> Bukti Foto Absensi</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center">
-                <img src="" id="imgModal" class="img-fluid rounded shadow">
+            <div class="modal-body text-center p-4">
+                <img src="" id="imgModal" class="img-fluid rounded-4 shadow-sm border border-4 border-white">
             </div>
         </div>
     </div>
@@ -81,7 +219,18 @@
 <script>
     $(document).ready(function() {
         $('#tabelAbsen').DataTable({
-            "order": [[ 0, "desc" ]] // Urutkan dari yang terbaru
+            "order": [[ 0, "desc" ]],
+            "language": {
+                "search": "Cari Karyawan:",
+                "lengthMenu": "Tampilkan _MENU_ data",
+                "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                "paginate": {
+                    "first": "Pertama",
+                    "last": "Terakhir",
+                    "next": "Lanjut",
+                    "previous": "Kembali"
+                }
+            }
         });
     });
 
