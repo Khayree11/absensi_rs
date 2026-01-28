@@ -121,9 +121,17 @@
         <a class="navbar-brand" href="#">
             <img src="<?= base_url('image/full.png') ?>" alt="Logo RS" class="hospital-logo-nav">
         </a>
+        
         <div class="d-flex align-items-center">
-            <span class="me-3 d-none d-md-inline fw-bold text-muted small">Panel Administrator</span>
-            <a href="<?= base_url('logout') ?>" class="logout-btn small">
+            <a href="<?= base_url('karyawan') ?>" class="btn btn-primary btn-sm me-3 rounded-pill px-3 fw-bold shadow-sm">
+                <i class="bi bi-people-fill"></i> Kelola Karyawan
+            </a>
+
+            <span class="d-none d-md-inline fw-bold text-muted small border-start ps-3 me-3">
+                Panel Administrator
+            </span>
+
+            <a href="<?= base_url('logout') ?>" class="logout-btn small text-danger text-decoration-none fw-bold">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
         </div>
@@ -135,6 +143,37 @@
         <div class="col-12">
             <h3 class="fw-bold mb-1">Rekap Presensi Digital</h3>
             <p class="text-muted small">Monitor kehadiran karyawan secara real-time</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0 rounded-4">
+        <div class="card-body p-4">
+            <form action="" method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted fw-bold">Dari Tanggal</label>
+                        <input type="date" name="start_date" class="form-control" value="<?= $filter_start ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted fw-bold">Sampai Tanggal</label>
+                        <input type="date" name="end_date" class="form-control" value="<?= $filter_end ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted fw-bold">Cari Nama / Unit</label>
+                        <input type="text" name="keyword" class="form-control" placeholder="Nama Karyawan..." value="<?= $filter_keyword ?>">
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">
+                                <i class="bi bi-search"></i> Filter
+                            </button>
+                            <a href="<?= base_url('admin/export') ?>?start_date=<?= $filter_start ?>&end_date=<?= $filter_end ?>&keyword=<?= $filter_keyword ?>" target="_blank" class="btn btn-danger w-100 fw-bold">
+                                <i class="bi bi-file-earmark-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
