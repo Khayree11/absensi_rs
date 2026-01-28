@@ -1,0 +1,24 @@
+# ENVIRONMENT
+# --------------------------------------------------------------------
+CI_ENVIRONMENT = development
+
+# APP
+# --------------------------------------------------------------------
+# app.baseURL = 'localhost:8080/'
+# app.forceGlobalSecureRequests = false
+
+# DATABASE
+# --------------------------------------------------------------------
+database.default.hostname = localhost
+database.default.database = absensi_rs
+database.default.username = root
+database.default.password = 
+database.default.DBDriver = MySQLi
+database.default.DBPrefix =
+database.default.port = 3306
+
+# ENCRYPTION
+# --------------------------------------------------------------------
+# Jalankan 'php spark key:generate' di terminal untuk mengisi ini secara otomatis
+
+encryption.key = hex2bin:0665986797510d4ab03a2fe5f0d6f71dc3dfd29e7ed338c3e51bed1a86e203db

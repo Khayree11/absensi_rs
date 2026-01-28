@@ -84,5 +84,19 @@ class Admin extends BaseController
 
         // 4. Download PDF
         $dompdf->stream("Laporan_Absensi.pdf", ["Attachment" => true]);
+        
+        $html = view('admin/pdf_view', $data);
+
+        $options = new Options();
+        $options->set('isRemoteEnabled', true); 
+        // Tambahkan baris chroot di bawah ini
+        $options->set('chroot', FCPATH); 
+        
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $dompdf->stream("Laporan_Absensi.pdf", ["Attachment" => true]);
     }
 }
