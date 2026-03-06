@@ -163,43 +163,81 @@
             didOpen: () => { Swal.showLoading(); } 
         });
 
-        navigator.geolocation.getCurrentPosition(function(position) {
-            let lat = position.coords.latitude;
-            let long = position.coords.longitude;
+        // Deteksi iOS/macOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isMac = /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints === 0;
 
-            Webcam.snap(function(data_uri) {
-                $.ajax({
-                    url: '<?= base_url('presensi/submit') ?>',
-                    type: 'POST',
-                    data: {
-                        jenis: $('#jenis_absen').val(),
-                        lat: lat,
-                        long: long,
-                        image: data_uri
-                    },
-                    success: function(res) {
-                        Swal.fire({
-                            icon: res.status === 'success' ? 'success' : 'error',
-                            title: res.status === 'success' ? 'Berhasil' : 'Gagal',
-                            text: res.message,
-                            confirmButtonColor: '#0056b3'
-                        });
-                    },
-                    error: function() {
-                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
-                    }
+        const geoOptions = {
+            enableHighAccuracy: isIOS || isMac ? true : false, // iOS butuh true
+            timeout: isIOS || isMac ? 30000 : 15000,          // iOS butuh waktu lebih lama
+            maximumAge: 60000                                   // Boleh pakai cache 1 menit
+        };
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                let lat = position.coords.latitude;
+                let long = position.coords.longitude;
+                let akurasi = position.coords.accuracy;
+
+                console.log("Akurasi: " + akurasi + " meter | Platform: " + (isIOS ? "iOS" : isMac ? "Mac" : "Other"));
+
+                Webcam.snap(function(data_uri) {
+                    $.ajax({
+                        url: '<?= base_url('presensi/submit') ?>',
+                        type: 'POST',
+                        data: {
+                            jenis: $('#jenis_absen').val(),
+                            lat: lat,
+                            long: long,
+                            image: data_uri
+                        },
+                        success: function(res) {
+                            Swal.fire({
+                                icon: res.status === 'success' ? 'success' : 'error',
+                                title: res.status === 'success' ? 'Berhasil' : 'Gagal',
+                                text: res.message,
+                                confirmButtonColor: '#0056b3'
+                            });
+                        },
+                        error: function() {
+                            Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                        }
+                    });
                 });
-            });
-        }, function(error) {
-            let msg = 'Gagal mendapatkan lokasi. Pastikan GPS aktif.';
-            if(error.code == 1) msg = 'Mohon izinkan akses lokasi pada browser Anda.';
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Lokasi Gagal',
-                text: msg
-            });
-        }, { enableHighAccuracy: true });
+            },
+            function(error) {
+                let msg = '';
+                let extraMsg = '';
+
+                // Pesan khusus iOS/Mac
+                if (isIOS) {
+                    extraMsg = '\n\nUntuk iOS: Buka Settings → Privacy & Security → Location Services → Safari → "While Using App"';
+                } else if (isMac) {
+                    extraMsg = '\n\nUntuk Mac: Buka System Settings → Privacy & Security → Location Services → aktifkan Safari';
+                }
+
+                switch(error.code) {
+                    case 1:
+                        msg = 'Izin lokasi ditolak.' + extraMsg;
+                        break;
+                    case 2:
+                        msg = 'Sinyal GPS/jaringan tidak tersedia.' + extraMsg;
+                        break;
+                    case 3:
+                        msg = 'Timeout. Pastikan berada di area dengan sinyal baik, lalu coba lagi.' + extraMsg;
+                        break;
+                    default:
+                        msg = 'Gagal mendapatkan lokasi.' + extraMsg;
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lokasi Gagal',
+                    text: msg
+                });
+            },
+            geoOptions
+        );
     }
 </script>
 </body>
